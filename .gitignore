@@ -1,6 +1,7 @@
 *.out
 *.o
 *.torrent
+*.bak
 
 .vscode/*
 !.vscode/settings.json
