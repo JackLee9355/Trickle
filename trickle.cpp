@@ -1,5 +1,7 @@
 #include <iostream>
-#include "torrent.h"
+#include "torrent/torrent.h"
+#include "bencode/bencode.h"
+
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -7,7 +9,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    Torrent *torrent = new Torrent(argv[1]);
-    delete torrent;
+    BencodeFile *bencode = new BencodeFile(argv[1]);
+    try {
+        BencodeValue dict = bencode->nextValue();
+    } catch (const char* err) {
+        std::cout << err << std::endl;
+    }
+    delete bencode;
     return 0;
 }

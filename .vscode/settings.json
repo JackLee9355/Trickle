@@ -43,6 +43,11 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "string": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "vector": "cpp",
+        "map": "cpp",
+        "sstream": "cpp",
+        "xtree": "cpp",
+        "xhash": "cpp"
     }
 }
