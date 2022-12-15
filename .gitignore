@@ -2,6 +2,7 @@
 *.o
 *.torrent
 *.bak
+trickle
 
 .vscode/*
 !.vscode/settings.json
