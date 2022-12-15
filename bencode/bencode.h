@@ -16,11 +16,13 @@ enum BencodeType {
 };
 
 class BencodeValue {
-  private:
+  protected:
     BencodeType type;
 
   public:
+    virtual ~BencodeValue() {}
     BencodeType getType();
+    virtual std::string toString() const = 0;
 };
 
 class BencodeNumber : public BencodeValue {
@@ -28,8 +30,11 @@ class BencodeNumber : public BencodeValue {
     long value;
 
   public:
+    BencodeNumber();
+    virtual ~BencodeNumber();
     void setValue(long value);
     long asLong();
+    virtual std::string toString() const;
 };
 
 class BencodeString : public BencodeValue {
@@ -37,31 +42,39 @@ class BencodeString : public BencodeValue {
     std::vector<char> value;
 
   public:
+    BencodeString();
+    virtual ~BencodeString();
     void addByte(char c);
     std::vector<char> asVector() const;
-
+    virtual std::string toString() const;
 };
 
 struct BencodeStringCompare {
-  bool operator() (const BencodeString& lhs, const BencodeString& rhs) const;
+  bool operator() (const BencodeString* lhs, const BencodeString* rhs) const;
 };
 
 class BencodeList : public BencodeValue {
   private:
-    std::vector<BencodeValue> values;
+    std::vector<BencodeValue*> values;
 
   public:
-    void add(BencodeValue value);
-    std::vector<BencodeValue> asVector();
+    BencodeList();
+    virtual ~BencodeList();
+    void add(BencodeValue *value);
+    std::vector<BencodeValue*> asVector();
+    virtual std::string toString() const;
 };
 
 class BencodeDict : public BencodeValue {
   private:
-    std::map<BencodeString, BencodeValue, BencodeStringCompare> values;
+    std::map<BencodeString*, BencodeValue*, BencodeStringCompare> values;
 
   public:
-    void addEntry(BencodeString key, BencodeValue value);
-    std::map<BencodeString, BencodeValue, BencodeStringCompare> asMap();
+    BencodeDict();
+    virtual ~BencodeDict();
+    void addEntry(BencodeString *key, BencodeValue *value);
+    std::map<BencodeString*, BencodeValue*, BencodeStringCompare> asMap();
+    virtual std::string toString() const;
 };
 
 class BencodeFile {
@@ -72,14 +85,14 @@ class BencodeFile {
 
   public:
     BencodeFile(const std::string path);
-    BencodeValue nextValue();
+    BencodeValue* nextValue();
     
   private:
     void loadFromPath();
-    BencodeString nextString();
-    BencodeList nextList();
-    BencodeDict nextDict();
-    BencodeNumber nextNumber();
+    BencodeString* nextString();
+    BencodeList* nextList();
+    BencodeDict* nextDict();
+    BencodeNumber* nextNumber();
     long nextLong();
     void skipEnd();
     void verifyLoc();

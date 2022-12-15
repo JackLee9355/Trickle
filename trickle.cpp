@@ -11,7 +11,9 @@ int main(int argc, char *argv[]) {
 
     BencodeFile *bencode = new BencodeFile(argv[1]);
     try {
-        BencodeValue dict = bencode->nextValue();
+        BencodeValue* dict = bencode->nextValue();
+        std::cout << dict->toString() << std::endl;
+        delete dict;
     } catch (const char* err) {
         std::cout << err << std::endl;
     }

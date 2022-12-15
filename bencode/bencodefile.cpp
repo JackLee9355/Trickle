@@ -16,7 +16,7 @@ void BencodeFile::loadFromPath() {
     }
 }
 
-BencodeValue BencodeFile::nextValue() {
+BencodeValue* BencodeFile::nextValue() {
     verifyLoc();
     char chr = content[curLoc];
     switch (chr) {
@@ -65,47 +65,52 @@ long BencodeFile::nextLong() {
     return result;
 }
 
-BencodeString BencodeFile::nextString() {
-    BencodeString str;
+BencodeString* BencodeFile::nextString() {
+    // std::cout << "String" << std::endl;
+    BencodeString *str = new BencodeString;
     long length = nextLong();
 
     if (content[curLoc] != BENCODE_SEPERATOR) {
-        throw "Unexpected character seperating BencodeString length from content";
+        throw "Unexpected character seperating BencodeString length from content: ";
     }
     curLoc++;
 
     for (int i = 0; i < length; i++) {
-        str.addByte(content[curLoc++]);
+        str->addByte(content[curLoc++]);
     }
     return str;
 }
 
-BencodeNumber BencodeFile::nextNumber() {
+BencodeNumber* BencodeFile::nextNumber() {
+    // std::cout << "Number" << std::endl;
     curLoc++;
-    BencodeNumber number;
+    BencodeNumber *number = new BencodeNumber;
     long value = nextLong();
-    number.setValue(value);
+    std::cout << value << std::endl;
+    number->setValue(value);
     skipEnd();
     return number;
 }
 
-BencodeList BencodeFile::nextList() {
+BencodeList* BencodeFile::nextList() {
+    // std::cout << "List" << std::endl;
     curLoc++;
-    BencodeList list;
+    BencodeList *list = new BencodeList;
     while (content[curLoc] != BENCODE_END) {
-        list.add(nextValue());
+        list->add(nextValue());
     }
     skipEnd();
     return list;
 }
 
-BencodeDict BencodeFile::nextDict() {
+BencodeDict* BencodeFile::nextDict() {
+    // std::cout << "Dict" << std::endl;
     curLoc++;
-    BencodeDict dict;
+    BencodeDict *dict = new BencodeDict;
     while (content[curLoc] != BENCODE_END) {
-        BencodeString str = nextString();
-        BencodeValue value = nextValue();
-        dict.addEntry(str, value);
+        BencodeString *key = nextString();
+        BencodeValue *value = nextValue();
+        dict->addEntry(key, value);
     }
     skipEnd();
     return dict;
