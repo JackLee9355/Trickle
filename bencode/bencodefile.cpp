@@ -56,13 +56,13 @@ long BencodeFile::nextLong() {
         chr = content[curLoc++];
     }
     long result = chr - '0';
-    
+
     while (isdigit(content[curLoc])) {
         chr = content[curLoc++];
         result = (result * 10) + (chr - '0');
     }
 
-    return result;
+    return isNeg ? -result : result;
 }
 
 BencodeString* BencodeFile::nextString() {
@@ -86,7 +86,6 @@ BencodeNumber* BencodeFile::nextNumber() {
     curLoc++;
     BencodeNumber *number = new BencodeNumber;
     long value = nextLong();
-    std::cout << value << std::endl;
     number->setValue(value);
     skipEnd();
     return number;

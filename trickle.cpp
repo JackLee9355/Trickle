@@ -9,14 +9,23 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    BencodeFile *bencode = new BencodeFile(argv[1]);
+    BencodeFile bencode(argv[1]);
     try {
-        BencodeValue* dict = bencode->nextValue();
-        std::cout << dict->toString() << std::endl;
-        delete dict;
+        BencodeValue* value = bencode.nextValue();
+        BencodeDict* dict = dynamic_cast<BencodeDict*>(value);
+        if (dict == nullptr) {
+            std::cout << "Bencode file doesn't begin with a dictonary" << std::endl;
+            return 1;
+        }
+        BencodeValue *annouce = dict->getValue("announce");
+        if (annouce == nullptr) {
+            std::cout << "Bencode announce doesn't exist" << std::endl;
+            return 1;
+        }
+        std::cout << annouce->toString() << std::endl;
+        delete value;
     } catch (const char* err) {
         std::cout << err << std::endl;
     }
-    delete bencode;
     return 0;
 }

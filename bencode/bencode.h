@@ -43,6 +43,7 @@ class BencodeString : public BencodeValue {
 
   public:
     BencodeString();
+    BencodeString(const std::string& value);
     virtual ~BencodeString();
     void addByte(char c);
     std::vector<char> asVector() const;
@@ -73,6 +74,8 @@ class BencodeDict : public BencodeValue {
     BencodeDict();
     virtual ~BencodeDict();
     void addEntry(BencodeString *key, BencodeValue *value);
+    BencodeValue* getValue(BencodeString *key);
+    BencodeValue* getValue(const std::string& key);
     std::map<BencodeString*, BencodeValue*, BencodeStringCompare> asMap();
     virtual std::string toString() const;
 };

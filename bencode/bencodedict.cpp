@@ -27,3 +27,14 @@ std::string BencodeDict::toString() const {
     ret += "}";
     return ret;
 }
+
+BencodeValue* BencodeDict::getValue(BencodeString* key) {
+    return values[key];
+}
+
+BencodeValue* BencodeDict::getValue(const std::string& key) {
+    BencodeString *bencodeString = new BencodeString(key);
+    BencodeValue *value = getValue(bencodeString);
+    delete bencodeString;
+    return value;
+}
