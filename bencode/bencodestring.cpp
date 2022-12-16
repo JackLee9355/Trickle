@@ -1,5 +1,4 @@
 #include "bencode.h"
-#include <iostream>
 
 bool BencodeStringCompare::operator() (const BencodeString* lhs, const BencodeString* rhs) const {
     return lhs->asVector() < rhs->asVector();
@@ -25,7 +24,5 @@ std::vector<char> BencodeString::asVector() const {
 
 std::string BencodeString::toString() const {
     std::string s(value.begin(), value.end());
-    s.insert(0, 1, '"');
-    s.push_back('"');
     return s;
 }
