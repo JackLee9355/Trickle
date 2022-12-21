@@ -18,21 +18,31 @@ void BencodeFile::loadFromPath() {
 
 BencodeValue* BencodeFile::nextValue() {
     verifyLoc();
+    long start = curLoc; 
     char chr = content[curLoc];
+    BencodeValue *next;
     switch (chr) {
         case bencodeDict:
-            return nextDict();
+            next = nextDict();
+            break;
         case bencodeNumber:
-            return nextNumber();
+            next = nextNumber();
+            break;
         case bencodeList:
-            return nextList();
+            next = nextList();
+            break;
         default:
             if (isdigit(chr)) {
-                return nextString();
+                next = nextString();
+            } else {
+                throw "Invalid bencode file. Current character is invalid for new value. Char: " + chr;
             }
+            break;
     }
 
-    throw "Invalid bencode file. Current character is invalid for new value. Char: " + chr;
+    long end = curLoc;
+    calculateSHA1(start, end, next->getSHA1());
+    return next;
 }
 
 void BencodeFile::verifyLoc() {
@@ -107,10 +117,24 @@ BencodeDict* BencodeFile::nextDict() {
     curLoc++;
     BencodeDict *dict = new BencodeDict;
     while (content[curLoc] != BENCODE_END) {
-        BencodeString *key = nextString();
+        BencodeString *key = dynamic_cast<BencodeString*>(nextValue());
+        if (key == nullptr) {
+            throw "Bencode dict expected a string for a key";
+        }
         BencodeValue *value = nextValue();
         dict->addEntry(key, value);
     }
     skipEnd();
     return dict;
+}
+
+void BencodeFile::calculateSHA1(long start, long end, unsigned char *hash) {
+    SHA_CTX ctx;
+    SHA1_Init(&ctx);
+
+    for (long i = start; i < end; i++) {
+        SHA1_Update(&ctx, &content[i], sizeof(char));
+    }
+
+    SHA1_Final(hash, &ctx);
 }

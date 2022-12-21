@@ -1,7 +1,7 @@
 #ifndef TORRENT_H
 #define TORRENT_H
 
-#include "../bencode/bencode.h"
+#include <bencode/bencode.h>
 #include <string>
 #include <vector>
 
@@ -11,7 +11,7 @@ const std::string PIECE_LENGTH_KEY = "piece length";
 const std::string NAME_KEY = "name";
 const std::string PIECES_KEY = "pieces";
 
-class Torrent {
+class TorrentMetadata {
   private:
     std::string announce;
     std::string name;
@@ -19,9 +19,23 @@ class Torrent {
     std::vector<char> pieces;
 
   public:
-    Torrent(BencodeFile *metadata);
+    TorrentMetadata(BencodeFile *file);
+    const std::string& getAnnounce();
+    const std::string& getName();
+    long getPieceLength();
+    const std::vector<char>& getPieces();
+};
+
+class Torrent {
+  private:
+    TorrentMetadata *metadata;
+
+  public:
+    Torrent(const std::string& path);
+    ~Torrent();
 
   private:
+    int announce();
 };
 
 #endif

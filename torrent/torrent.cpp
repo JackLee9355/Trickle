@@ -1,41 +1,26 @@
 #include "torrent.h"
-#include <iostream>
+#include <sys/socket.h> 
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <openssl/sha.h>
 
-Torrent::Torrent(BencodeFile *metadata) {
-    BencodeValue *value = metadata->nextValue();
-    BencodeDict *dict = dynamic_cast<BencodeDict*>(value);
-    if (dict == nullptr) {
-        throw "Bencode file doesn't begin with a dictonary";
+
+Torrent::Torrent(const std::string& path) {
+    BencodeFile bencode(path);
+    metadata = new TorrentMetadata(&bencode);
+}
+
+Torrent::~Torrent() {
+    delete metadata;
+}
+
+int Torrent::announce() {
+    int fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd < 0) {
+        throw "Error creating announcer socket.";
     }
 
-    BencodeValue *bencodeAnnounce = dynamic_cast<BencodeString*>(dict->getValue(ANNOUNCE_KEY));
-    if (bencodeAnnounce == nullptr) {
-        throw "Bencode announce doesn't exist";
-    }
-    announce = bencodeAnnounce->toString();
-
-    BencodeDict *info = dynamic_cast<BencodeDict*>(dict->getValue(INFO_KEY));
-    if (info == nullptr) {
-        throw "Bencode info doesn't exist";
-    }
-
-    BencodeString *bencodeName = dynamic_cast<BencodeString*>(info->getValue(NAME_KEY));
-    if (bencodeName == nullptr) {
-        throw "Bencode name doesn't exist";
-    }
-    name = bencodeName->toString();
-    
-    BencodeNumber *bencodeLength = dynamic_cast<BencodeNumber*>(info->getValue(PIECE_LENGTH_KEY));
-    if (bencodeLength == nullptr) {
-        throw "Bencode pieve length doesn't exist";
-    }
-    pieceLength = bencodeLength->asLong();
-
-    BencodeString *bencodePieces = dynamic_cast<BencodeString*>(info->getValue(PIECES_KEY));
-    if (bencodePieces == nullptr) {
-        throw "Bencode pieces doesn't exist";
-    }
-    pieces = bencodePieces->asVector();
-
-    delete value;
+    struct sockaddr_in annouceAddr;
+    return fd;
 }

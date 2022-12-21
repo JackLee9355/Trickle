@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <openssl/sha.h>
 
 const char BENCODE_END = 'e';
 const char BENCODE_SEPERATOR = ':';
@@ -18,11 +19,13 @@ enum BencodeType {
 class BencodeValue {
   protected:
     BencodeType type;
+    unsigned char SHA1[SHA_DIGEST_LENGTH];
 
   public:
     virtual ~BencodeValue() {}
     BencodeType getType();
     virtual std::string toString() const = 0;
+    unsigned char* getSHA1();
 };
 
 class BencodeNumber : public BencodeValue {
@@ -99,6 +102,7 @@ class BencodeFile {
     long nextLong();
     void skipEnd();
     void verifyLoc();
+    void calculateSHA1(long start, long end, unsigned char *hash);
 };
 
 #endif // BENCODE_H

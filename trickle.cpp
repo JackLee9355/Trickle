@@ -1,6 +1,6 @@
 #include <iostream>
-#include "torrent/torrent.h"
-#include "bencode/bencode.h"
+#include <torrent/torrent.h>
+#include <bencode/bencode.h>
 
 
 int main(int argc, char *argv[]) {
@@ -10,10 +10,10 @@ int main(int argc, char *argv[]) {
     }
 
     try {
-        BencodeFile bencode(argv[1]);
-        Torrent torrent(&bencode);
+        Torrent torrent(argv[1]);
     } catch (const char* err) {
         std::cout << err << std::endl;
+        return 1;
     }
     return 0;
 }
