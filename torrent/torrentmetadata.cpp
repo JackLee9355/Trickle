@@ -18,6 +18,10 @@ TorrentMetadata::TorrentMetadata(BencodeFile *file) {
     if (info == nullptr) {
         throw "Bencode info doesn't exist";
     }
+    unsigned char *infoSHA1 = info->getSHA1();
+    for (int i = 0; i < SHA_DIGEST_LENGTH; i++) {
+        infoHash[i] = infoSHA1[i];
+    }
 
     BencodeString *bencodeName = dynamic_cast<BencodeString*>(info->getValue(NAME_KEY));
     if (bencodeName == nullptr) {
@@ -48,6 +52,22 @@ TorrentMetadata::TorrentMetadata(BencodeFile *file) {
 
 const std::string& TorrentMetadata::getAnnounce() {
     return announce;
+}
+
+unsigned char* TorrentMetadata::getInfoHash() {
+    return infoHash;
+}
+
+void TorrentMetadata::announceUrlComponents(struct UrlComponents *annouceUrl) {
+    int firstColon = announce.find(':');
+    int secondColon = announce.find(':', firstColon + 1);
+    int endPort = secondColon + 1;
+    for (; endPort < announce.length() && isdigit(announce[endPort]); endPort++);
+
+    annouceUrl->protocol = announce.substr(0, firstColon);
+    annouceUrl->hostname = announce.substr(firstColon + 3, secondColon - (firstColon + 3)); // Plus 1 for the colon and 2 for the double slash
+    annouceUrl->port = announce.substr(secondColon + 1, endPort - (secondColon + 1));
+    annouceUrl->resource = announce.substr(endPort);
 }
 
 const std::string& TorrentMetadata::getName() {
