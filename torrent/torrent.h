@@ -54,6 +54,7 @@ class Torrent {
   private:
     void initPeerId();
     int announce();
+    std::string buildAnnouncerRequest(struct UrlComponents *url);
 };
 
 #endif
