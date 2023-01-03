@@ -29,11 +29,17 @@ TorrentMetadata::TorrentMetadata(BencodeFile *file) {
     }
     name = bencodeName->toString();
     
-    BencodeNumber *bencodeLength = dynamic_cast<BencodeNumber*>(info->getValue(PIECE_LENGTH_KEY));
-    if (bencodeLength == nullptr) {
+    BencodeNumber *bencodePieceLength = dynamic_cast<BencodeNumber*>(info->getValue(PIECE_LENGTH_KEY));
+    if (bencodePieceLength == nullptr) {
         throw "Bencode pieve length doesn't exist";
     }
-    pieceLength = bencodeLength->asLong();
+    pieceLength = bencodePieceLength->asLong();
+
+    BencodeNumber *bencodeFileLength = dynamic_cast<BencodeNumber*>(info->getValue(LENGTH_KEY));
+    if (bencodeFileLength == nullptr) {
+        throw "Bencode pieve length doesn't exist";
+    }
+    fileLength = bencodeFileLength->asLong();
 
     BencodeString *bencodePieces = dynamic_cast<BencodeString*>(info->getValue(PIECES_KEY));
     if (bencodePieces == nullptr) {
@@ -76,6 +82,10 @@ const std::string& TorrentMetadata::getName() {
 
 long TorrentMetadata::getPieceLength() {
     return pieceLength;
+}
+
+long TorrentMetadata::getFileLength() {
+    return fileLength;
 }
 
 const std::vector<char>& TorrentMetadata::getPieces() {

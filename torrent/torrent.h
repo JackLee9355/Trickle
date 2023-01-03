@@ -8,6 +8,7 @@
 
 const std::string ANNOUNCE_KEY = "announce";
 const std::string INFO_KEY = "info";
+const std::string LENGTH_KEY = "length";
 const std::string PIECE_LENGTH_KEY = "piece length";
 const std::string NAME_KEY = "name";
 const std::string PIECES_KEY = "pieces";
@@ -26,6 +27,7 @@ class TorrentMetadata {
     std::string announce;
     std::string name;
     long pieceLength;
+    long fileLength;
     std::vector<char> pieces;
     unsigned char infoHash[SHA_DIGEST_LENGTH];
 
@@ -34,6 +36,7 @@ class TorrentMetadata {
     const std::string& getAnnounce();
     const std::string& getName();
     unsigned char* getInfoHash();
+    long getFileLength();
     long getPieceLength();
     const std::vector<char>& getPieces();
     void announceUrlComponents(struct UrlComponents *annouceUrl);
@@ -54,6 +57,7 @@ class Torrent {
   private:
     void initPeerId();
     int announce();
+    long getLeft();
     std::string buildAnnouncerRequest(struct UrlComponents *url);
 };
 

@@ -30,6 +30,11 @@ void Torrent::initPeerId() {
     }
 }
 
+long Torrent::getLeft() {
+    // If we add reinitialization this will need to be changed.
+    return metadata->getFileLength() - downloaded;
+}
+
 int Torrent::announce() {
     struct UrlComponents url;
     metadata->announceUrlComponents(&url);
@@ -72,6 +77,11 @@ int Torrent::announce() {
 
         char buffer[2048] = { 0 };
         int amountRead = read(sfd, buffer, 2048);
+        if (amountRead < 0) {
+            close(sfd);
+            std::cout << "Error reading from socket" << std::endl;
+            continue;
+        }
         std::cout << buffer << std::endl;
 
         close(sfd);
@@ -101,7 +111,7 @@ std::string Torrent::buildAnnouncerRequest(struct UrlComponents *url) {
     request += "&port=" + std::to_string(port);
     request += "&uploaded=" + std::to_string(uploaded);
     request += "&downloaded=" + std::to_string(downloaded);
-    request += "&left=" + std::to_string(1000); // TODO: Replace this with a actual value.
+    request += "&left=" + std::to_string(getLeft()); // TODO: Replace this with a actual value.
     request += " HTTP/1.1\r\n";
     request += "Host: " + url->hostname + ":" + url->port + "\r\n\r\n";
     return request;
