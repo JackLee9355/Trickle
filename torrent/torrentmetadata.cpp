@@ -31,13 +31,13 @@ TorrentMetadata::TorrentMetadata(BencodeFile *file) {
     
     BencodeNumber *bencodePieceLength = dynamic_cast<BencodeNumber*>(info->getValue(PIECE_LENGTH_KEY));
     if (bencodePieceLength == nullptr) {
-        throw "Bencode pieve length doesn't exist";
+        throw "Bencode piece length doesn't exist";
     }
     pieceLength = bencodePieceLength->asLong();
 
     BencodeNumber *bencodeFileLength = dynamic_cast<BencodeNumber*>(info->getValue(LENGTH_KEY));
     if (bencodeFileLength == nullptr) {
-        throw "Bencode pieve length doesn't exist";
+        throw "Bencode file length doesn't exist";
     }
     fileLength = bencodeFileLength->asLong();
 

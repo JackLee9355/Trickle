@@ -16,6 +16,12 @@ void BencodeFile::loadFromPath() {
     }
 }
 
+BencodeFile::BencodeFile(char* data, long length) {
+    for (long i = 0; i < length; i++) {
+        content.push_back(data[i]);
+    }
+}
+
 BencodeValue* BencodeFile::nextValue() {
     verifyLoc();
     long start = curLoc; 

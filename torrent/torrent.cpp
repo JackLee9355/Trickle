@@ -75,15 +75,51 @@ int Torrent::announce() {
             continue;
         }
 
-        char buffer[2048] = { 0 };
-        int amountRead = read(sfd, buffer, 2048);
+        long bufLength = 512;
+        long used = 0;
+        char *buf = new char[bufLength];
+        long amountRead;
+        while ((amountRead = read(sfd, buf + used, bufLength - used)) > 0) {
+            if (amountRead < bufLength - used) {
+                used += amountRead;
+                break;
+            }
+
+            used += amountRead;
+            char *tmp = new char[bufLength * 2];
+            for (long i = 0; i < bufLength - used; i++) {
+                tmp[i] = buf[i];
+            }
+            delete[] buf;
+            buf = tmp;
+            bufLength *= 2;
+        } 
+
         if (amountRead < 0) {
             close(sfd);
             std::cout << "Error reading from socket" << std::endl;
             continue;
         }
-        std::cout << buffer << std::endl;
 
+        if (strncmp(buf, "HTTP/1.1 200 OK", strlen("HTTP/1.1 200 OK")) != 0) {
+            close(sfd);
+            std::cout << "Did not receive HTTP/1.1 200 OK from socket" << std::endl;
+            continue;
+        }
+
+        char *body = strstr(buf, "\r\n\r\n");
+        if (body == nullptr) {
+            close(sfd);
+            std::cout << "HTTP response has no body" << std::endl;
+            continue;
+        }
+        body += strlen("\r\n\r\n");
+        BencodeFile bencodeFile(body, used - (buf - body));
+        delete[] buf;
+        
+        BencodeValue *value = bencodeFile.nextValue();
+        std::cout << value->toString() << std::endl;
+        delete value;
         close(sfd);
         break;
     }
@@ -111,8 +147,10 @@ std::string Torrent::buildAnnouncerRequest(struct UrlComponents *url) {
     request += "&port=" + std::to_string(port);
     request += "&uploaded=" + std::to_string(uploaded);
     request += "&downloaded=" + std::to_string(downloaded);
-    request += "&left=" + std::to_string(getLeft()); // TODO: Replace this with a actual value.
+    request += "&left=" + std::to_string(getLeft());
+    request += "&compact=1"; // This seems to be the defacto standard these days. And I only want to implement one lol
     request += " HTTP/1.1\r\n";
     request += "Host: " + url->hostname + ":" + url->port + "\r\n\r\n";
+    std::cout << request;
     return request;
 }

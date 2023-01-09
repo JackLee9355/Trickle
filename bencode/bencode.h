@@ -91,6 +91,7 @@ class BencodeFile {
 
   public:
     BencodeFile(const std::string path);
+    BencodeFile(char* data, long length);
     BencodeValue* nextValue();
     
   private:
