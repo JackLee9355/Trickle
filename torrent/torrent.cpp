@@ -75,7 +75,7 @@ int Torrent::announce() {
             continue;
         }
 
-        long bufLength = 512;
+        long bufLength = 2;
         long used = 0;
         char *buf = new char[bufLength];
         long amountRead;
@@ -87,7 +87,7 @@ int Torrent::announce() {
 
             used += amountRead;
             char *tmp = new char[bufLength * 2];
-            for (long i = 0; i < bufLength - used; i++) {
+            for (long i = 0; i < bufLength; i++) {
                 tmp[i] = buf[i];
             }
             delete[] buf;
